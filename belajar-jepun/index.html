@@ -114,6 +114,40 @@ h2 { margin: 0; font-size: 1.3rem; }
 .finish { text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center; padding: 24px 0; }
 .finish .big { font-family: var(--font-jp); font-weight: 800; font-size: 3.2rem; color: var(--accent); line-height: 1.1; }
 .note { font-size: .82rem; color: var(--muted); }
+
+.paths { display: flex; flex-direction: column; gap: 12px; }
+.path { width: 100%; text-align: left; display: grid; grid-template-columns: 64px 1fr; gap: 16px; align-items: center; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 20px; padding: 20px; }
+.path.alt { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.path .glyph { font-family: var(--font-jp); font-weight: 800; font-size: 2.6rem; text-align: center; line-height: 1; }
+.path.alt .glyph { color: var(--voice); }
+.path h3 { margin: 0; font-size: 1.2rem; }
+.path p { margin: 2px 0 0; font-size: .85rem; opacity: .85; }
+.sentence { font-family: var(--font-jp); font-weight: 800; font-size: 2rem; line-height: 1.3; overflow-wrap: anywhere; }
+.s-h { color: var(--accent); } .s-k { color: var(--voice); } .s-j { color: var(--good); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .8rem; }
+.dot::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: currentColor; margin-right: 6px; }
+.tips { margin: 8px 0 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; }
+.note-box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; font-size: .9rem; }
+.note-box summary { cursor: pointer; font-weight: 700; }
+.cta.alt { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.cardch { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+.bigc { font-family: var(--font-jp); font-weight: 800; font-size: 3rem; line-height: 1; text-align: center; color: var(--accent); }
+.bigc.small { font-size: 1.6rem; }
+.cardch b { font-size: 1.1rem; }
+.cardch p { margin: 2px 0 0; font-size: .88rem; color: var(--muted); }
+.cardch p.ex { color: var(--ink); }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opt { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 14px 10px; font-size: 1.05rem; font-weight: 500; }
+.opt:hover { border-color: var(--accent); }
+.opt.jpo { font-family: var(--font-jp); font-size: 1.7rem; }
+.opt.right { border-color: var(--good); color: var(--good); }
+.opt.wrong { border-color: var(--bad); color: var(--bad); }
+.bigq { font-family: var(--font-jp); font-weight: 800; font-size: 4rem; line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
+.bigq.word { font-size: 2.6rem; }
+.chart { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.cell { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 4px; text-align: center; }
+.cell span { display: block; font-family: var(--font-jp); font-weight: 600; font-size: 1.4rem; }
+.cell small { color: var(--muted); font-size: .72rem; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
@@ -157,9 +191,249 @@ h2 { margin: 0; font-size: 1.3rem; }
     ]}
   ];
 
+  /* ---------- Data bacaan ---------- */
+  function mk(script, sname, id, name, rows, note) {
+    return { id: id, script: script, scriptName: sname, name: name, note: note || "",
+      chars: rows.map(function (r) { return { c: r[0], r: r[1], tip: r[2] }; }) };
+  }
+  function mkD(script, sname, id, name, rows, mark) {
+    return { id: id, script: script, scriptName: sname, name: name,
+      note: "Tambah dua titik (゛) atau bulatan kecil (゜) pada huruf yang sama untuk mengubah bunyi. Tiada bentuk baharu untuk dihafal, hanya bunyi baharu.",
+      chars: rows.map(function (r) { return { c: r[0], r: r[1], tip: "Huruf " + r[2] + " ditambah " + mark + "." }; }) };
+  }
+  function mkK(id, name, rows) {
+    return { id: id, script: "kanji", scriptName: "Kanji", name: name, note: "",
+      chars: rows.map(function (r) {
+        return { c: r[0], m: r[1], r: r[2], tip: r[3], w: { jp: r[4][0], kana: r[4][1], rom: r[4][2], ms: r[4][3] } };
+      }) };
+  }
+  var H = "Hiragana", K = "Katakana";
+
+  var GROUPS = [
+    mk("hira", H, "h1", "Lima vokal", [
+      ["あ", "a", "Seperti 'A' yang dilukis dengan berus. Sebut 'ah!'."],
+      ["い", "i", "Dua garis berdiri, macam dua huruf 'i' bersebelahan."],
+      ["う", "u", "'u' yang tunduk. Ingat 'ular' yang melengkung."],
+      ["え", "e", "Burung eksotik (e) dengan kepala dan sayap melintang."],
+      ["お", "o", "Orang menjerit 'Oh!' dengan tangan terangkat."]
+    ], "Semua huruf Jepun berakhir dengan salah satu daripada lima vokal ini. Bunyinya sama seperti Bahasa Melayu: a, i, u, e (seperti 'enak'), o."),
+    mk("hira", H, "h2", "Baris K", [
+      ["か", "ka", "Kaki yang menendang bola ke kanan: ka."],
+      ["き", "ki", "Kunci dengan dua palang: ki."],
+      ["く", "ku", "Paruh burung 'kuk-kuk', bentuk seperti tanda '<'."],
+      ["け", "ke", "Tong kek berdiri, garis tegak di kanan."],
+      ["こ", "ko", "Dua garis macam bibir kecil: ko."]
+    ]),
+    mk("hira", H, "h3", "Baris S", [
+      ["さ", "sa", "Ikan sardin menyelam, ekor di bawah."],
+      ["し", "shi", "Cangkuk pancing. 'Shh', diam supaya ikan tak lari."],
+      ["す", "su", "Mi yang digulung pada sudu: su."],
+      ["せ", "se", "Mulut tersengih lebar: se-ngih."],
+      ["そ", "so", "Sosej yang dilipat zig-zag: so."]
+    ]),
+    mk("hira", H, "h4", "Baris T", [
+      ["た", "ta", "Kiri nampak 't', kanan nampak 'a': ta."],
+      ["ち", "chi", "Angka 5 yang terbalik. Sebut 'chi' macam 'cik'."],
+      ["つ", "tsu", "Ombak tsunami yang melengkung."],
+      ["て", "te", "Tangan (te) yang menghulur ke kiri. 'Te' memang bermaksud tangan."],
+      ["と", "to", "Paku tertusuk jari kaki: 'toe' (to)."]
+    ]),
+    mk("hira", H, "h5", "Baris N", [
+      ["な", "na", "Nenek bongkok dengan tongkat: na."],
+      ["に", "ni", "Satu garis tegak dan dua garis mendatar. 'Ni' = dua."],
+      ["ぬ", "nu", "Mi (noodle) berpintal dalam mangkuk: nu."],
+      ["ね", "ne", "Kucing (neko) dengan ekor melingkar."],
+      ["の", "no", "Garis melingkar seperti tanda larangan: 'no'."]
+    ]),
+    mk("hira", H, "h6", "Baris H", [
+      ["は", "ha", "Orang ketawa 'ha ha': dua tiang dan satu gelung. Sebagai partikel dibaca 'wa'."],
+      ["ひ", "hi", "Senyuman lebar 'hi hi'."],
+      ["ふ", "fu", "Gunung Fuji dengan awan di sekelilingnya."],
+      ["へ", "he", "Bumbung rumah yang serong, satu sapuan sahaja."],
+      ["ほ", "ho", "Seperti は dengan palang tambahan. Santa Claus ketawa 'ho ho ho'."]
+    ]),
+    mk("hira", H, "h7", "Baris M", [
+      ["ま", "ma", "Mama memeluk bakul, gelung di bawah."],
+      ["み", "mi", "Nampak macam angka 21. Sebut 'mi'."],
+      ["む", "mu", "Lembu menguak 'mu-u' dengan ekor kecil."],
+      ["め", "me", "Mata (me) dengan anak mata di tengah. 'Me' memang bermaksud mata."],
+      ["も", "mo", "Kail pancing dengan dua mata: 'mo' (lagi)."]
+    ]),
+    mk("hira", H, "h8", "Baris Y", [
+      ["や", "ya", "Yak bertanduk yang menendang ke kanan."],
+      ["ゆ", "yu", "Ikan yu berenang melengkung."],
+      ["よ", "yo", "Yoyo yang tergantung pada tali."]
+    ]),
+    mk("hira", H, "h9", "Baris R", [
+      ["ら", "ra", "Orang berlari (ra) dengan topi di atas kepala."],
+      ["り", "ri", "Dua batang rel (rail) yang menegak."],
+      ["る", "ru", "Jalan menggulung ke dalam ruang: ru."],
+      ["れ", "re", "Seperti ね tetapi ekor terbuka ke kanan. Ia 'lari' keluar."],
+      ["ろ", "ro", "Jalan (road) berliku seperti angka 3 yang tak lengkap."]
+    ], "Bunyi 'r' Jepun terletak antara r dan l. Sebut dengan hujung lidah menyentuh lelangit sekali, ringan."),
+    mk("hira", H, "h10", "W dan N", [
+      ["わ", "wa", "Seperti れ tetapi bulat. Sebut 'Wah!' kagum."],
+      ["を", "wo", "Dibaca 'o'. Hanya tanda objek dalam ayat, jadi senang diingat sebagai 'penanda'."],
+      ["ん", "n", "Huruf 'n' yang meleret. Satu-satunya bunyi tanpa vokal."]
+    ], "Itulah ke-46 huruf asas. Selepas ini kita belajar bunyi tambahan."),
+    mkD("hira", H, "h11", "Dua titik: G", [["が", "ga", "か"], ["ぎ", "gi", "き"], ["ぐ", "gu", "く"], ["げ", "ge", "け"], ["ご", "go", "こ"]], "dua titik"),
+    mkD("hira", H, "h12", "Dua titik: Z", [["ざ", "za", "さ"], ["じ", "ji", "し"], ["ず", "zu", "す"], ["ぜ", "ze", "せ"], ["ぞ", "zo", "そ"]], "dua titik"),
+    mkD("hira", H, "h13", "Dua titik: D", [["だ", "da", "た"], ["で", "de", "て"], ["ど", "do", "と"]], "dua titik"),
+    mkD("hira", H, "h14", "Dua titik: B", [["ば", "ba", "は"], ["び", "bi", "ひ"], ["ぶ", "bu", "ふ"], ["べ", "be", "へ"], ["ぼ", "bo", "ほ"]], "dua titik"),
+    mkD("hira", H, "h15", "Bulatan: P", [["ぱ", "pa", "は"], ["ぴ", "pi", "ひ"], ["ぷ", "pu", "ふ"], ["ぺ", "pe", "へ"], ["ぽ", "po", "ほ"]], "bulatan kecil"),
+    mk("hira", H, "h16", "Gabungan kecil", [
+      ["きゃ", "kya", "き + ゃ kecil: sebut 'ki' dan 'ya' laju jadi 'kya'."],
+      ["きゅ", "kyu", "き + ゅ kecil: kyu."],
+      ["きょ", "kyo", "き + ょ kecil: kyo, seperti dalam 'Tokyo'."],
+      ["しゃ", "sha", "し + ゃ kecil: sha."],
+      ["しゅ", "shu", "し + ゅ kecil: shu."],
+      ["しょ", "sho", "し + ょ kecil: sho."],
+      ["ちゃ", "cha", "ち + ゃ kecil: cha, seperti dalam 'ocha' (teh)."],
+      ["ちゅ", "chu", "ち + ゅ kecil: chu."],
+      ["ちょ", "cho", "ち + ょ kecil: cho."]
+    ], "ゃ ゅ ょ yang kecil bergabung dengan huruf di depannya dan dibaca sebagai satu bunyi. Satu lagi: っ kecil bermaksud berhenti sekejap sebelum bunyi seterusnya, contohnya きって dibaca 'kitte'."),
+
+    mk("kata", K, "k1", "Lima vokal", [
+      ["ア", "a", "Anak panah ke atas dengan palang: 'A'."],
+      ["イ", "i", "Dua garis serong, seperti pagar yang rebah: i."],
+      ["ウ", "u", "Udang bertopi dengan titik di atas."],
+      ["エ", "e", "Besi 'I' tiga lapis (I-beam): e."],
+      ["オ", "o", "Orang berdiri menghulur tangan: 'Oh!'"]
+    ], "Katakana digunakan untuk perkataan pinjaman dan nama asing, contohnya コーヒー (kopi). Bunyinya sama dengan hiragana, hanya rupa berbeza. Garis ー memanjangkan bunyi (kōhī) dan ッ kecil bermaksud berhenti sekejap."),
+    mk("kata", K, "k2", "Baris K", [
+      ["カ", "ka", "Seperti か tetapi lebih tegap: kapak."],
+      ["キ", "ki", "Kunci dengan tiga palang."],
+      ["ク", "ku", "Kuku burung: bentuk く yang bertopi."],
+      ["ケ", "ke", "Seperti け tanpa garis kiri: kek."],
+      ["コ", "ko", "Kotak terbuka di kanan: ko-tak."]
+    ]),
+    mk("kata", K, "k3", "Baris S", [
+      ["サ", "sa", "Tiga pasak pagar yang menegak: sa."],
+      ["シ", "shi", "Dua titik dan sapuan, condong ke atas-kanan. Bandingkan dengan ツ."],
+      ["ス", "su", "Sudu yang menyenduk."],
+      ["セ", "se", "Mulut senget: se-nget."],
+      ["ソ", "so", "Titik di atas, sapuan menegak ke bawah. Bandingkan dengan ン."]
+    ], "シ dan ソ hampir sama dengan ツ dan ン. Petua: シ dan ン, sapuannya naik dari bawah. ソ dan ツ, sapuannya jatuh dari atas."),
+    mk("kata", K, "k4", "Baris T", [
+      ["タ", "ta", "Tali yang digantung dengan kepala di atas: ta."],
+      ["チ", "chi", "Seperti 千 (seribu) yang ringkas. Sebut 'chi' seperti 'cik'."],
+      ["ツ", "tsu", "Dua titik menegak dan sapuan jatuh ke bawah. Bandingkan dengan シ."],
+      ["テ", "te", "Menara pemancar TV (tele): te."],
+      ["ト", "to", "Tongkat dengan satu cabang: totem."]
+    ]),
+    mk("kata", K, "k5", "Baris N", [
+      ["ナ", "na", "Salib kecil: na-nas yang berdaun."],
+      ["ニ", "ni", "Dua garis mendatar. 'Ni' = dua."],
+      ["ヌ", "nu", "Seperti ぬ tanpa gelung: nu-dle."],
+      ["ネ", "ne", "Bendera di atas tiang: ne-gara."],
+      ["ノ", "no", "Satu sapuan serong: 'no'."]
+    ]),
+    mk("kata", K, "k6", "Baris H", [
+      ["ハ", "ha", "Dua kaki yang terbuka. Sama seperti kanji 八 (lapan)."],
+      ["ヒ", "hi", "Orang tunduk tersenyum 'hi hi'."],
+      ["フ", "fu", "Satu lengkung: kipas (fu = fan)."],
+      ["ヘ", "he", "Sama seperti へ hiragana: bumbung rumah."],
+      ["ホ", "ho", "Salib dengan dua titik: ho-tel."]
+    ]),
+    mk("kata", K, "k7", "Baris M", [
+      ["マ", "ma", "Segi tiga bersudut: Mak memegang kain."],
+      ["ミ", "mi", "Tiga garis. 'Mi' = tiga."],
+      ["ム", "mu", "Segi tiga dengan ekor: lembu 'mu'."],
+      ["メ", "me", "Tanda silang 'x' yang bermaksud salah: me."],
+      ["モ", "mo", "Bentuk ringkas も: mo-nyet."]
+    ]),
+    mk("kata", K, "k8", "Baris Y", [
+      ["ヤ", "ya", "Seperti や yang ringkas: yak."],
+      ["ユ", "yu", "Huruf U bersegi: yu."],
+      ["ヨ", "yo", "Tiga garis di kanan: yo-yo."]
+    ]),
+    mk("kata", K, "k9", "Baris R", [
+      ["ラ", "ra", "Topi dua garis: ra-dio."],
+      ["リ", "ri", "Dua garis menegak: rel."],
+      ["ル", "ru", "Dua kaki berlari ke kanan: ru."],
+      ["レ", "re", "Tanda semak (check): re-kod."],
+      ["ロ", "ro", "Kotak seperti mulut: ro-bot."]
+    ]),
+    mk("kata", K, "k10", "W dan N", [
+      ["ワ", "wa", "Topi dengan garis: 'Wah!'"],
+      ["ヲ", "wo", "Dibaca 'o'. Jarang digunakan."],
+      ["ン", "n", "Dua titik dan sapuan naik dari bawah. Bandingkan dengan ソ."]
+    ]),
+    mkD("kata", K, "k11", "Dua titik: G", [["ガ", "ga", "カ"], ["ギ", "gi", "キ"], ["グ", "gu", "ク"], ["ゲ", "ge", "ケ"], ["ゴ", "go", "コ"]], "dua titik"),
+    mkD("kata", K, "k12", "Dua titik: Z", [["ザ", "za", "サ"], ["ジ", "ji", "シ"], ["ズ", "zu", "ス"], ["ゼ", "ze", "セ"], ["ゾ", "zo", "ソ"]], "dua titik"),
+    mkD("kata", K, "k13", "Dua titik: D", [["ダ", "da", "タ"], ["デ", "de", "テ"], ["ド", "do", "ト"]], "dua titik"),
+    mkD("kata", K, "k14", "Dua titik: B", [["バ", "ba", "ハ"], ["ビ", "bi", "ヒ"], ["ブ", "bu", "フ"], ["ベ", "be", "ヘ"], ["ボ", "bo", "ホ"]], "dua titik"),
+    mkD("kata", K, "k15", "Bulatan: P", [["パ", "pa", "ハ"], ["ピ", "pi", "ヒ"], ["プ", "pu", "フ"], ["ペ", "pe", "ヘ"], ["ポ", "po", "ホ"]], "bulatan kecil"),
+
+    mkK("j1", "Alam", [
+      ["日", "hari, matahari", "hi / nichi", "Matahari di dalam bingkai. Kotak dengan garisan tengah.", ["日本", "にほん", "nihon", "Jepun"]],
+      ["月", "bulan", "tsuki / getsu", "Bulan sabit dengan dua garis awan di dalamnya.", ["月曜日", "げつようび", "getsuyōbi", "hari Isnin"]],
+      ["火", "api", "hi / ka", "Api marak dengan percikan di kiri dan kanan.", ["火曜日", "かようび", "kayōbi", "hari Selasa"]],
+      ["水", "air", "mizu / sui", "Air mengalir dengan percikan di sisi.", ["水", "みず", "mizu", "air"]],
+      ["木", "pokok", "ki / moku", "Batang, dahan dan akar sebatang pokok.", ["木", "き", "ki", "pokok"]]
+    ]),
+    mkK("j2", "Orang dan muka", [
+      ["山", "gunung", "yama / san", "Tiga puncak gunung.", ["山", "やま", "yama", "gunung"]],
+      ["川", "sungai", "kawa / sen", "Tiga aliran air yang mengalir ke bawah.", ["川", "かわ", "kawa", "sungai"]],
+      ["人", "orang", "hito / jin", "Orang berdiri dengan dua kaki.", ["日本人", "にほんじん", "nihonjin", "orang Jepun"]],
+      ["口", "mulut", "kuchi / kō", "Kotak mulut yang terbuka.", ["入口", "いりぐち", "iriguchi", "pintu masuk"]],
+      ["目", "mata", "me / moku", "Mata yang dipusing menegak, ada anak mata di tengah.", ["目", "め", "me", "mata"]]
+    ]),
+    mkK("j3", "Badan dan keluarga", [
+      ["手", "tangan", "te / shu", "Tapak tangan dengan jari yang terbuka.", ["手", "て", "te", "tangan"]],
+      ["子", "anak", "ko / shi", "Bayi dengan tangan didepa.", ["女の子", "おんなのこ", "onna no ko", "budak perempuan"]],
+      ["女", "wanita", "onna / jo", "Wanita bersimpuh dengan tangan bersilang. Anda akan nampak ini pada pintu tandas.", ["女", "おんな", "onna", "wanita"]],
+      ["男", "lelaki", "otoko / dan", "Ladang (田) di atas kuasa (力): lelaki yang bekerja. Ini juga tanda pada pintu tandas.", ["男", "おとこ", "otoko", "lelaki"]]
+    ]),
+    mkK("j4", "Saiz dan arah", [
+      ["大", "besar", "ō(kii) / dai", "Orang mendepa tangan seluas-luasnya: besar.", ["大きい", "おおきい", "ōkii", "besar"]],
+      ["小", "kecil", "chii(sai) / shō", "Satu garis tengah dengan dua titik kecil di sisi.", ["小さい", "ちいさい", "chiisai", "kecil"]],
+      ["中", "dalam, tengah", "naka / chū", "Anak panah tepat kena tengah sasaran.", ["中", "なか", "naka", "dalam"]],
+      ["上", "atas", "ue / jō", "Garis kecil berada di atas garis dasar.", ["上", "うえ", "ue", "atas"]],
+      ["下", "bawah", "shita / ka", "Garis kecil berada di bawah garis dasar.", ["下", "した", "shita", "bawah"]]
+    ]),
+    mkK("j5", "Tanda di jalan", [
+      ["入", "masuk", "hairu / iri", "Dua garis macam anak panah yang masuk ke dalam.", ["入口", "いりぐち", "iriguchi", "pintu masuk"]],
+      ["出", "keluar", "deru / de", "Pokok tumbuh keluar dari pasu.", ["出口", "でぐち", "deguchi", "pintu keluar"]],
+      ["円", "yen", "en", "Syiling yen yang bulat, dalam bentuk bingkai.", ["五百円", "ごひゃくえん", "gohyaku en", "500 yen"]]
+    ])
+  ];
+
+  var WORDS = {
+    hira: [
+      ["あさ", "あさ", "asa", "pagi"], ["いえ", "いえ", "ie", "rumah"], ["うみ", "うみ", "umi", "laut"],
+      ["さくら", "さくら", "sakura", "bunga sakura"], ["ねこ", "ねこ", "neko", "kucing"], ["いぬ", "いぬ", "inu", "anjing"],
+      ["すし", "すし", "sushi", "sushi"], ["おちゃ", "おちゃ", "ocha", "teh"], ["ともだち", "ともだち", "tomodachi", "kawan"],
+      ["ごはん", "ごはん", "gohan", "nasi"], ["ありがとう", "ありがとう", "arigatō", "terima kasih"], ["さようなら", "さようなら", "sayōnara", "selamat tinggal"]
+    ],
+    kata: [
+      ["コーヒー", "コーヒー", "kōhī", "kopi"], ["アイス", "アイス", "aisu", "ais"], ["ホテル", "ホテル", "hoteru", "hotel"],
+      ["タクシー", "タクシー", "takushī", "teksi"], ["テレビ", "テレビ", "terebi", "televisyen"], ["カメラ", "カメラ", "kamera", "kamera"],
+      ["バナナ", "バナナ", "banana", "pisang"], ["ケーキ", "ケーキ", "kēki", "kek"], ["ピザ", "ピザ", "piza", "piza"],
+      ["ジュース", "ジュース", "jūsu", "jus"], ["ノート", "ノート", "nōto", "buku nota"], ["スマホ", "スマホ", "sumaho", "telefon pintar"]
+    ]
+  };
+  WORDS.kanji = [];
+  GROUPS.forEach(function (g) {
+    if (g.script === "kanji") g.chars.forEach(function (c) { WORDS.kanji.push([c.w.jp, c.w.kana, c.w.rom, c.w.ms]); });
+  });
+
+  var SCRIPTS = {
+    hira: { name: "Hiragana", glyph: "あ", about: "Bunyi asas bahasa Jepun. Digunakan untuk perkataan asli dan hujung perkataan. Mulakan di sini." },
+    kata: { name: "Katakana", glyph: "ア", about: "Untuk perkataan pinjaman dan nama asing. Banyak yang awak sudah tahu bunyinya, seperti kopi, teksi dan hotel." },
+    kanji: { name: "Kanji", glyph: "日", about: "Tulisan bermakna dari China. Satu kanji ialah satu idea, jadi mulakan dengan yang berbentuk gambar." }
+  };
+  function groupsOf(s) { return GROUPS.filter(function (g) { return g.script === s; }); }
+  function nextGroup() {
+    for (var i = 0; i < GROUPS.length; i++) if (!S.mast[GROUPS[i].id]) return GROUPS[i];
+    return null;
+  }
+  function groupById(id) { return GROUPS.filter(function (g) { return g.id === id; })[0]; }
+
   /* ---------- Simpanan ---------- */
-  var S = { xp: 0, streak: 0, last: "", done: {}, rom: true };
+  var S = { xp: 0, streak: 0, last: "", done: {}, mast: {}, rom: true };
   try { var raw = localStorage.getItem("nihongo-v1"); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch (e) {}
+  S.mast = S.mast || {};
   function save() { try { localStorage.setItem("nihongo-v1", JSON.stringify(S)); } catch (e) {} }
   function today() { return new Date().toISOString().slice(0, 10); }
   function bumpStreak() {
@@ -218,7 +492,7 @@ h2 { margin: 0; font-size: 1.3rem; }
 
   /* ---------- Paparan ---------- */
   var app = document.getElementById("app");
-  var V = { page: "home", lesson: null, phase: "practice", qi: 0, placed: [], pool: [], tries: 0, gained: 0, locked: false };
+  var V = { script: "hira", group: null, page: "home", lesson: null, phase: "practice", qi: 0, placed: [], pool: [], tries: 0, gained: 0, locked: false };
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function shuffle(a) {
@@ -232,11 +506,23 @@ h2 { margin: 0; font-size: 1.3rem; }
       '<div class="stat"><b>' + S.xp + '</b><span>XP</span></div></div>';
   }
 
-  function home() {
+  function hub() {
+    var nm = Object.keys(S.done).length, md = Object.keys(S.mast).length, next = nextGroup();
+    app.innerHTML =
+      '<div class="top"><div class="brand"><small>Belajar bahasa Jepun</small>日本語</div>' + stats() + '</div>' +
+      '<p class="lead">Pilih jalan belajar. Kalau baru bermula, baca dahulu supaya awak boleh kenal tulisan pada menu, papan tanda dan mesej.</p>' +
+      '<div class="paths">' +
+      '<button class="path" data-act="readhome"><span class="glyph">読</span><span><h3>Membaca</h3><p>Hiragana, katakana dan kanji asas · ' + md + '/' + GROUPS.length + ' kumpulan dikuasai</p></span></button>' +
+      '<button class="path alt" data-act="speakhome"><span class="glyph">話</span><span><h3>Bercakap</h3><p>Dialog harian dan latihan sebutan · ' + nm + '/' + LESSONS.length + ' pelajaran selesai</p></span></button>' +
+      '</div>' +
+      (next ? '<button class="cta" data-act="learn" data-g="' + next.id + '">Teruskan: ' + esc(next.scriptName) + ', ' + esc(next.name) + '</button>' : '<p class="note">Semua kumpulan bacaan sudah dikuasai. Tahniah!</p>');
+  }
+
+  function speakHome() {
     var n = Object.keys(S.done).length;
     app.innerHTML =
-      '<div class="top"><div class="brand"><small>Belajar bercakap</small>話そう</div>' + stats() + '</div>' +
-      '<p class="lead">Dengar dialog, ulang dengan suara anda, kemudian susun ayat. ' + n + ' daripada ' + LESSONS.length + ' pelajaran selesai.</p>' +
+      '<div class="bar"><button class="back" data-act="hub">Menu utama</button></div>' +
+      '<div><h2>Bercakap</h2><p class="sub">Dengar dialog, ulang dengan suara anda, kemudian susun ayat. ' + n + ' daripada ' + LESSONS.length + ' pelajaran selesai.</p></div>' +
       '<ul class="lessons">' + LESSONS.map(function (l) {
         var d = S.done[l.id];
         return '<li><button class="lesson" data-act="open" data-id="' + l.id + '"><span class="glyph">' + l.glyph + '</span>' +
@@ -246,8 +532,143 @@ h2 { margin: 0; font-size: 1.3rem; }
       '<p class="note">Bunyi guna suara Jepun dalam peranti anda. Penilaian sebutan perlu pelayar yang menyokong pengecaman suara (Chrome atau Edge) dan kebenaran mikrofon.</p>';
   }
 
+  function readHome() {
+    app.innerHTML =
+      '<div class="bar"><button class="back" data-act="hub">Menu utama</button></div>' +
+      '<div><h2>Membaca</h2><p class="sub">Orang Jepun guna tiga jenis tulisan dalam satu ayat. Awak belajar satu demi satu.</p></div>' +
+      '<div class="quiz-card"><div class="sentence"><span class="s-j">私</span><span class="s-h">は</span><span class="s-k">コーヒー</span><span class="s-h">を</span><span class="s-j">飲</span><span class="s-h">みます</span></div>' +
+      '<div class="rom">watashi wa kōhī o nomimasu · Saya minum kopi.</div>' +
+      '<div class="legend"><span class="s-h dot">Hiragana: kata bantu dan hujung perkataan</span><span class="s-k dot">Katakana: perkataan pinjaman</span><span class="s-j dot">Kanji: makna utama</span></div></div>' +
+      '<ul class="lessons">' + Object.keys(SCRIPTS).map(function (s) {
+        var gs = groupsOf(s), d = gs.filter(function (g) { return S.mast[g.id]; }).length;
+        return '<li><button class="lesson" data-act="script" data-s="' + s + '"><span class="glyph">' + SCRIPTS[s].glyph + '</span>' +
+          '<span><h3>' + SCRIPTS[s].name + '</h3><p>' + esc(SCRIPTS[s].about) + '</p></span>' +
+          '<span class="badge' + (d === gs.length ? ' done' : '') + '">' + d + '/' + gs.length + '</span></button></li>';
+      }).join("") + '</ul>' +
+      '<div class="note-box"><b>Cara belajar yang mudah</b><ul class="tips">' +
+      '<li>Belajar satu kumpulan sehari, lima huruf sahaja. Lebih sikit tapi setiap hari lebih berkesan.</li>' +
+      '<li>Hafal dengan cerita pendek yang disediakan, bukan dengan menyalin berulang kali.</li>' +
+      '<li>Selepas setiap kumpulan, terus baca perkataan sebenar supaya otak melihat huruf dalam konteks.</li>' +
+      '<li>Mulakan hiragana, kemudian katakana. Kanji paling seronok bila sudah tahu kana.</li></ul></div>';
+  }
+
+  function scriptHome(s) {
+    var gs = groupsOf(s), sc = SCRIPTS[s];
+    V.script = s;
+    app.innerHTML =
+      '<div class="bar"><button class="back" data-act="readhome">Membaca</button></div>' +
+      '<div><h2>' + sc.name + '</h2><p class="sub">' + esc(sc.about) + '</p></div>' +
+      '<ul class="lessons">' + gs.map(function (g) {
+        var d = S.mast[g.id];
+        return '<li><button class="lesson" data-act="learn" data-g="' + g.id + '"><span class="glyph">' + esc(g.chars[0].c) + '</span>' +
+          '<span><h3>' + esc(g.name) + '</h3><p>' + g.chars.map(function (c) { return esc(c.c); }).join(" ") + '</p></span>' +
+          '<span class="badge' + (d ? ' done' : '') + '">' + (d ? 'Dikuasai' : 'Mula') + '</span></button></li>';
+      }).join("") + '</ul>' +
+      '<button class="cta alt" data-act="words" data-s="' + s + '">Baca perkataan sebenar</button>' +
+      '<details class="note-box"><summary>Carta penuh (ketik untuk dengar)</summary><div class="chart" style="margin-top:12px">' +
+      gs.map(function (g) {
+        return g.chars.map(function (c) {
+          return '<button class="cell" data-act="saychar" data-c="' + esc(c.c) + '"><span>' + esc(c.c) + '</span><small>' + esc(c.r) + '</small></button>';
+        }).join("");
+      }).join("") + '</div></details>';
+  }
+
+  function learn(id) {
+    var g = groupById(id), kj = g.script === "kanji";
+    V.group = g;
+    app.innerHTML =
+      '<div class="bar"><button class="back" data-act="script" data-s="' + g.script + '">' + g.scriptName + '</button></div>' +
+      '<div><h2>' + esc(g.name) + '</h2><p class="sub">' + g.scriptName + ' · ' + g.chars.length + ' huruf. Baca petua, ketik untuk dengar, kemudian uji diri.</p></div>' +
+      (g.note ? '<div class="note-box">' + esc(g.note) + '</div>' : '') +
+      g.chars.map(function (c) {
+        return '<article class="cardch"><div class="bigc' + (c.c.length > 1 ? ' small' : '') + '">' + esc(c.c) + '</div><div>' +
+          '<b>' + esc(kj ? c.m : c.r) + '</b>' +
+          (kj ? '<p>Bacaan: ' + esc(c.r) + '</p>' : '') +
+          '<p>' + esc(c.tip) + '</p>' +
+          (kj ? '<p class="ex">' + esc(c.w.jp) + ' (' + esc(c.w.kana) + ', ' + esc(c.w.rom) + ') = ' + esc(c.w.ms) + '</p>' : '') +
+          '</div><button class="chip" data-act="saychar" data-c="' + esc(kj ? c.w.kana : c.c) + '">' + ICON.play + '</button></article>';
+      }).join("") +
+      '<button class="cta" data-act="rquiz" data-g="' + g.id + '">Uji diri</button>';
+  }
+
+  /* ---------- Kuiz bacaan ---------- */
+  var R = { g: null, qs: [], qi: 0, ok: 0, locked: false, words: false, s: null };
+
+  function options(ans, poolArr) {
+    var uniq = poolArr.filter(function (v, i) { return v !== ans && poolArr.indexOf(v) === i; });
+    return shuffle(shuffle(uniq).slice(0, 3).concat([ans]));
+  }
+  function buildQs(g) {
+    var qs = [], all = groupsOf(g.script).reduce(function (a, x) { return a.concat(x.chars); }, []);
+    var canHear = !!voice && g.script !== "kanji";
+    g.chars.forEach(function (c) {
+      if (g.script === "kanji") {
+        qs.push({ q: c.c, sub: "Apa maksud kanji ini?", ans: c.m, opts: options(c.m, all.map(function (x) { return x.m; })), say: c.w.kana });
+        qs.push({ q: c.w.jp, sub: "Apa maksud perkataan ini?", ans: c.w.ms, opts: options(c.w.ms, all.map(function (x) { return x.w.ms; })), word: true, say: c.w.kana, rom: c.w.rom });
+      } else {
+        qs.push({ q: c.c, sub: "Apa bunyi huruf ini?", ans: c.r, opts: options(c.r, all.map(function (x) { return x.r; })), say: c.c });
+        if (canHear) qs.push({ hear: c.c, sub: "Dengar bunyinya, kemudian pilih huruf yang betul.", ans: c.c, opts: options(c.c, all.map(function (x) { return x.c; })), jpo: true, say: c.c });
+      }
+    });
+    return shuffle(qs);
+  }
+  function wordQs(s) {
+    var pool = WORDS[s], items = shuffle(pool).slice(0, 8);
+    return items.map(function (w) {
+      return { q: w[0], sub: "Baca perkataan ini. Apa maksudnya?", ans: w[3], opts: options(w[3], pool.map(function (x) { return x[3]; })), word: true, say: w[1], rom: w[2] };
+    });
+  }
+
+  function startQuiz(g, words, s) {
+    R = { g: g, qs: words ? wordQs(s) : buildQs(g), qi: 0, ok: 0, locked: false, words: !!words, s: s || (g && g.script) };
+    renderQ();
+  }
+  function renderQ() {
+    var q = R.qs[R.qi], back = R.words ? ['script', 'data-s="' + R.s + '"', 'Keluar'] : ['learn', 'data-g="' + R.g.id + '"', 'Keluar'];
+    app.innerHTML =
+      '<div class="bar"><button class="back" data-act="' + back[0] + '" ' + back[1] + '>' + back[2] + '</button><div class="progress"><i style="width:' + Math.round(R.qi / R.qs.length * 100) + '%"></i></div></div>' +
+      '<div class="quiz-card"><div class="sub">' + esc(q.sub) + ' (' + (R.qi + 1) + '/' + R.qs.length + ')</div>' +
+      (q.hear ? '<div style="text-align:center"><button class="chip voice" data-act="saychar" data-c="' + esc(q.hear) + '">' + ICON.play + 'Dengar lagi</button></div>' : '<div class="bigq' + (q.word ? ' word' : '') + '">' + esc(q.q) + '</div>') +
+      '<div class="opts">' + q.opts.map(function (o, k) {
+        return '<button class="opt' + (q.jpo ? ' jpo' : '') + '" data-act="ans" data-k="' + k + '">' + esc(o) + '</button>';
+      }).join("") + '</div><div class="feedback" id="fb"></div></div>';
+    if (q.hear) say(q.hear, false);
+  }
+  function answer(k) {
+    if (R.locked) return;
+    R.locked = true;
+    var q = R.qs[R.qi], ok = q.opts[k] === q.ans, btns = app.querySelectorAll(".opt");
+    btns.forEach(function (b, i) {
+      if (q.opts[i] === q.ans) b.classList.add("right");
+      else if (i === k) b.classList.add("wrong");
+    });
+    if (ok) { R.ok++; award(3); }
+    var fb = document.getElementById("fb");
+    fb.className = "feedback " + (ok ? "good" : "bad");
+    fb.textContent = (ok ? "Betul!" : "Jawapan: " + q.ans) + (q.rom ? " · " + q.rom : "");
+    say(q.say, false);
+    var last = R.qi === R.qs.length - 1;
+    app.insertAdjacentHTML("beforeend", '<button class="cta" data-act="rnext">' + (last ? 'Lihat keputusan' : 'Soalan seterusnya') + '</button>');
+  }
+  function rfinish() {
+    var pct = Math.round(R.ok / R.qs.length * 100), pass = pct >= 80, g = R.g;
+    if (!R.words && pass) { S.mast[g.id] = true; bumpStreak(); save(); }
+    if (R.words) { bumpStreak(); save(); }
+    var next = nextGroup();
+    app.innerHTML =
+      '<div class="bar"><button class="back" data-act="script" data-s="' + R.s + '">' + SCRIPTS[R.s].name + '</button><div class="progress"><i style="width:100%"></i></div></div>' +
+      '<div class="finish"><div class="big">' + (pass || R.words ? 'できた' : 'もう一度') + '</div>' +
+      '<h2>' + R.ok + ' daripada ' + R.qs.length + ' betul (' + pct + '%)</h2>' +
+      '<p class="sub">' + (R.words ? 'Setiap perkataan yang awak baca menguatkan ingatan huruf.' : pass ? 'Kumpulan ' + esc(g.name) + ' dikuasai. XP bertambah.' : 'Perlukan 80% untuk menandakan kumpulan dikuasai. Baca petua sekali lagi, kemudian cuba semula.') + '</p>' +
+      (R.words ? '<button class="cta" data-act="words" data-s="' + R.s + '">Main lagi</button>'
+        : pass && next ? '<button class="cta" data-act="learn" data-g="' + next.id + '">Seterusnya: ' + esc(next.scriptName) + ', ' + esc(next.name) + '</button>'
+          : '<button class="cta" data-act="learn" data-g="' + g.id + '">Belajar semula</button>') +
+      (!R.words && pass ? '<button class="chip" data-act="words" data-s="' + R.s + '">Baca perkataan sebenar</button>' : '') +
+      '</div>';
+  }
+
   function bar(pct) {
-    return '<div class="bar"><button class="back" data-act="home">Kembali</button><div class="progress"><i style="width:' + pct + '%"></i></div></div>';
+    return '<div class="bar"><button class="back" data-act="speakhome">Kembali</button><div class="progress"><i style="width:' + pct + '%"></i></div></div>';
   }
 
   function practice() {
@@ -339,7 +760,7 @@ h2 { margin: 0; font-size: 1.3rem; }
     app.innerHTML = bar(100) +
       '<div class="finish"><div class="big">できた</div><h2>Pelajaran ' + esc(L.title) + ' selesai</h2>' +
       '<p class="sub">+' + V.gained + ' XP' + (first ? ' dan pelajaran baharu ditandakan selesai' : '') + '. Streak anda ' + S.streak + ' hari.</p>' +
-      '<button class="cta" data-act="home">Kembali ke senarai</button>' +
+      '<button class="cta" data-act="speakhome">Kembali ke senarai</button>' +
       '<button class="chip" data-act="open" data-id="' + L.id + '">Ulang pelajaran ini</button></div>';
   }
 
@@ -350,7 +771,17 @@ h2 { margin: 0; font-size: 1.3rem; }
     if (act === "open") {
       V.lesson = LESSONS.filter(function (l) { return l.id === b.dataset.id; })[0];
       V.phase = "practice"; V.qi = 0; V.gained = 0; practice(); window.scrollTo(0, 0);
-    } else if (act === "home") { if (window.speechSynthesis) speechSynthesis.cancel(); home(); window.scrollTo(0, 0); }
+    } else if (act === "hub" || act === "speakhome" || act === "readhome" || act === "script" || act === "learn" || act === "rquiz" || act === "words") {
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      if (act === "hub") hub(); else if (act === "speakhome") speakHome(); else if (act === "readhome") readHome();
+      else if (act === "script") scriptHome(b.dataset.s); else if (act === "learn") learn(b.dataset.g);
+      else if (act === "rquiz") startQuiz(groupById(b.dataset.g));
+      else startQuiz(null, true, b.dataset.s);
+      window.scrollTo(0, 0);
+    }
+    else if (act === "saychar") say(b.dataset.c, false);
+    else if (act === "ans") answer(k);
+    else if (act === "rnext") { R.locked = false; if (R.qi >= R.qs.length - 1) rfinish(); else { R.qi++; renderQ(); window.scrollTo(0, 0); } }
     else if (act === "rom") { S.rom = !S.rom; save(); practice(); }
     else if (act === "play") say(V.lesson.lines[i].kana, false);
     else if (act === "slow") say(V.lesson.lines[i].kana, true);
@@ -368,6 +799,6 @@ h2 { margin: 0; font-size: 1.3rem; }
     }
   });
 
-  home();
+  hub();
 })();
 </script>
