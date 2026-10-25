@@ -1,0 +1,373 @@
+<title>Cakap Nihongo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
+<style>
+/* Layout: satu lajur sempit seperti app telefon; senarai pelajaran -> latihan dialog -> susun ayat. */
+:root {
+  --bg: #f3f1ec;
+  --surface: #fbfaf7;
+  --ink: #1d2338;
+  --muted: #6a6f82;
+  --line: #dcd9d0;
+  --accent: #2b3a67;      /* indigo celup (aizome) */
+  --accent-ink: #ffffff;
+  --voice: #d4572a;       /* jingga kesumba, khas untuk butang sebut */
+  --good: #2f7d55;
+  --bad: #b3372f;
+  --font-jp: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-ui: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141829; --surface: #1c2136; --ink: #eceaf2; --muted: #9aa0b8; --line: #2c3250;
+    --accent: #8fa3e8; --accent-ink: #12162a; --voice: #f08a5d; --good: #6cc496; --bad: #ef8a82;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141829; --surface: #1c2136; --ink: #eceaf2; --muted: #9aa0b8; --line: #2c3250;
+  --accent: #8fa3e8; --accent-ink: #12162a; --voice: #f08a5d; --good: #6cc496; --bad: #ef8a82;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 16px; line-height: 1.55;
+  padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--voice); outline-offset: 2px; }
+svg { width: 20px; height: 20px; flex: none; }
+
+.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--font-jp); font-weight: 800; font-size: 2rem; line-height: 1.1; letter-spacing: .02em; }
+.brand small { display: block; font-family: var(--font-ui); font-weight: 500; font-size: .8rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.stats { display: flex; gap: 8px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; text-align: center; min-width: 64px; }
+.stat b { display: block; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.stat span { font-size: .72rem; color: var(--muted); }
+
+.lead { color: var(--muted); margin: 0; }
+.lessons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.lesson {
+  width: 100%; text-align: left; display: grid; grid-template-columns: 56px 1fr auto; align-items: center; gap: 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px;
+}
+.lesson:hover { border-color: var(--accent); }
+.lesson .glyph { font-family: var(--font-jp); font-weight: 800; font-size: 1.9rem; color: var(--accent); text-align: center; }
+.lesson h3 { margin: 0; font-size: 1.05rem; }
+.lesson p { margin: 0; font-size: .85rem; color: var(--muted); }
+.badge { font-size: .75rem; padding: 3px 10px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.badge.done { color: var(--good); border-color: var(--good); }
+
+.bar { display: flex; align-items: center; gap: 12px; }
+.back { background: none; border: 1px solid var(--line); border-radius: 99px; padding: 6px 14px; color: var(--muted); }
+.progress { flex: 1; height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+h2 { margin: 0; font-size: 1.3rem; }
+.sub { color: var(--muted); margin: 0; font-size: .9rem; }
+
+.line { display: flex; flex-direction: column; gap: 8px; max-width: 92%; }
+.line.b { align-self: flex-end; align-items: flex-end; }
+.bubble { background: var(--surface); border: 1px solid var(--line); border-radius: 18px 18px 18px 4px; padding: 12px 16px; display: flex; flex-direction: column; gap: 2px; }
+.line.b .bubble { border-radius: 18px 18px 4px 18px; border-color: var(--accent); }
+.who { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.jp { font-family: var(--font-jp); font-weight: 600; font-size: 1.35rem; line-height: 1.5; }
+.rom { font-size: .85rem; color: var(--accent); }
+.ms { font-size: .9rem; color: var(--muted); }
+.hide-rom .rom { display: none; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface);
+  border-radius: 99px; padding: 6px 14px; font-size: .88rem;
+}
+.chip.voice { background: var(--voice); border-color: var(--voice); color: #fff; font-weight: 700; }
+.chip.live { animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+.result { font-size: .88rem; display: flex; flex-direction: column; gap: 6px; }
+.result .meter { height: 6px; width: 160px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.result .meter i { display: block; height: 100%; background: var(--good); }
+.good { color: var(--good); } .bad { color: var(--bad); }
+
+.cta {
+  background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 14px; padding: 14px 20px;
+  font-weight: 700; font-size: 1rem; width: 100%;
+}
+.cta[disabled] { opacity: .45; cursor: default; }
+.toggle { align-self: flex-start; }
+
+.quiz-card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.prompt { font-size: 1.1rem; font-weight: 500; }
+.slot { min-height: 56px; border-bottom: 2px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 8px; align-items: center; }
+.pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 50px; }
+.tile { font-family: var(--font-jp); font-weight: 600; font-size: 1.15rem; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; }
+.tile:hover { border-color: var(--accent); }
+.shake { animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.feedback { min-height: 1.5em; font-weight: 700; }
+
+.finish { text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center; padding: 24px 0; }
+.finish .big { font-family: var(--font-jp); font-weight: 800; font-size: 3.2rem; color: var(--accent); line-height: 1.1; }
+.note { font-size: .82rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<main id="app"></main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Data pelajaran ---------- */
+  var LESSONS = [
+    { id: "salam", glyph: "朝", title: "Salam harian", sub: "Selamat pagi, apa khabar", lines: [
+      { w: "A", jp: "おはようございます。", kana: "おはようございます", rom: "ohayō gozaimasu", ms: "Selamat pagi.", t: ["おはよう", "ございます"] },
+      { w: "B", jp: "おはようございます。お元気ですか。", kana: "おはようございます。おげんきですか", rom: "ohayō gozaimasu. ogenki desu ka", ms: "Selamat pagi. Apa khabar?", t: ["おはよう", "ございます", "おげんきですか"] },
+      { w: "A", jp: "元気です。ありがとう。", kana: "げんきです。ありがとう", rom: "genki desu. arigatō", ms: "Sihat. Terima kasih.", t: ["げんきです", "ありがとう"] },
+      { w: "B", jp: "よかった。", kana: "よかった", rom: "yokatta", ms: "Baguslah.", t: ["よかった"] }
+    ]},
+    { id: "kenal", glyph: "初", title: "Berkenalan", sub: "Nama dan negara asal", lines: [
+      { w: "A", jp: "はじめまして。田中です。", kana: "はじめまして。たなかです", rom: "hajimemashite. Tanaka desu", ms: "Salam kenal. Saya Tanaka.", t: ["はじめまして", "たなかです"] },
+      { w: "B", jp: "アリです。マレーシアから来ました。", kana: "アリです。マレーシアからきました", rom: "Ari desu. Marēshia kara kimashita", ms: "Saya Ali. Saya datang dari Malaysia.", t: ["アリです", "マレーシア", "から", "きました"] },
+      { w: "A", jp: "そうですか。どうぞよろしく。", kana: "そうですか。どうぞよろしく", rom: "sō desu ka. dōzo yoroshiku", ms: "Oh begitu. Sila berkenalan.", t: ["そうですか", "どうぞ", "よろしく"] },
+      { w: "B", jp: "こちらこそ、よろしくお願いします。", kana: "こちらこそ、よろしくおねがいします", rom: "kochira koso, yoroshiku onegaishimasu", ms: "Saya juga, mohon bantuannya.", t: ["こちらこそ", "よろしく", "おねがいします"] }
+    ]},
+    { id: "kafe", glyph: "茶", title: "Di kafe", sub: "Memesan minuman", lines: [
+      { w: "A", jp: "いらっしゃいませ。何を飲みますか。", kana: "いらっしゃいませ。なにをのみますか", rom: "irasshaimase. nani o nomimasu ka", ms: "Selamat datang. Nak minum apa?", t: ["いらっしゃいませ", "なにを", "のみますか"] },
+      { w: "B", jp: "コーヒーをください。", kana: "コーヒーをください", rom: "kōhī o kudasai", ms: "Tolong beri kopi.", t: ["コーヒー", "を", "ください"] },
+      { w: "A", jp: "ホットですか、アイスですか。", kana: "ホットですか、アイスですか", rom: "hotto desu ka, aisu desu ka", ms: "Panas atau ais?", t: ["ホットですか", "アイスですか"] },
+      { w: "B", jp: "アイスをお願いします。", kana: "アイスをおねがいします", rom: "aisu o onegaishimasu", ms: "Ais, tolong.", t: ["アイス", "を", "おねがいします"] }
+    ]},
+    { id: "beli", glyph: "円", title: "Membeli-belah", sub: "Tanya harga", lines: [
+      { w: "A", jp: "これはいくらですか。", kana: "これはいくらですか", rom: "kore wa ikura desu ka", ms: "Berapa harga ini?", t: ["これは", "いくらですか"] },
+      { w: "B", jp: "五百円です。", kana: "ごひゃくえんです", rom: "gohyaku en desu", ms: "500 yen.", t: ["ごひゃく", "えん", "です"] },
+      { w: "A", jp: "少し高いですね。", kana: "すこしたかいですね", rom: "sukoshi takai desu ne", ms: "Agak mahal ya.", t: ["すこし", "たかいですね"] },
+      { w: "B", jp: "じゃあ、三百円です。", kana: "じゃあ、さんびゃくえんです", rom: "jā, sanbyaku en desu", ms: "Kalau begitu, 300 yen.", t: ["じゃあ", "さんびゃく", "えん", "です"] }
+    ]},
+    { id: "arah", glyph: "駅", title: "Bertanya arah", sub: "Mencari stesen", lines: [
+      { w: "A", jp: "すみません、駅はどこですか。", kana: "すみません、えきはどこですか", rom: "sumimasen, eki wa doko desu ka", ms: "Maaf, di mana stesen?", t: ["すみません", "えきは", "どこですか"] },
+      { w: "B", jp: "まっすぐ行ってください。", kana: "まっすぐいってください", rom: "massugu itte kudasai", ms: "Pergi terus.", t: ["まっすぐ", "いって", "ください"] },
+      { w: "A", jp: "近いですか。", kana: "ちかいですか", rom: "chikai desu ka", ms: "Dekat ke?", t: ["ちかいですか"] },
+      { w: "B", jp: "はい、歩いて五分です。", kana: "はい、あるいてごふんです", rom: "hai, aruite gofun desu", ms: "Ya, jalan kaki lima minit.", t: ["はい", "あるいて", "ごふん", "です"] }
+    ]}
+  ];
+
+  /* ---------- Simpanan ---------- */
+  var S = { xp: 0, streak: 0, last: "", done: {}, rom: true };
+  try { var raw = localStorage.getItem("nihongo-v1"); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch (e) {}
+  function save() { try { localStorage.setItem("nihongo-v1", JSON.stringify(S)); } catch (e) {} }
+  function today() { return new Date().toISOString().slice(0, 10); }
+  function bumpStreak() {
+    var t = today();
+    if (S.last === t) return;
+    var y = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+    S.streak = S.last === y ? S.streak + 1 : 1;
+    S.last = t;
+  }
+
+  /* ---------- Suara ---------- */
+  var voice = null;
+  function pickVoice() {
+    if (!window.speechSynthesis) return;
+    var vs = speechSynthesis.getVoices();
+    voice = vs.filter(function (v) { return /^ja/i.test(v.lang); })[0] || null;
+  }
+  if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+  function say(text, slow) {
+    if (!window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "ja-JP"; if (voice) u.voice = voice;
+    u.rate = slow ? 0.55 : 0.9;
+    speechSynthesis.speak(u);
+  }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  function toHira(s) {
+    return s.replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 96); });
+  }
+  function norm(s) { return toHira(s).replace(/[\s。、，,.!?！？ー]/g, ""); }
+  function lev(a, b) {
+    var m = a.length, n = b.length, d = [], i, j;
+    for (i = 0; i <= m; i++) { d[i] = [i]; }
+    for (j = 1; j <= n; j++) d[0][j] = j;
+    for (i = 1; i <= m; i++) for (j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[m][n];
+  }
+  function similarity(heard, line) {
+    var h = norm(heard), best = 0;
+    [line.kana, line.jp].forEach(function (ref) {
+      var r = norm(ref), len = Math.max(r.length, h.length) || 1;
+      best = Math.max(best, 1 - lev(h, r) / len);
+    });
+    return best;
+  }
+
+  /* ---------- Ikon ---------- */
+  var ICON = {
+    play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 010 7"/></svg>',
+    slow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>'
+  };
+
+  /* ---------- Paparan ---------- */
+  var app = document.getElementById("app");
+  var V = { page: "home", lesson: null, phase: "practice", qi: 0, placed: [], pool: [], tries: 0, gained: 0, locked: false };
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function shuffle(a) {
+    var r = a.slice(), i, j, t;
+    for (i = r.length - 1; i > 0; i--) { j = Math.floor(Math.random() * (i + 1)); t = r[i]; r[i] = r[j]; r[j] = t; }
+    if (r.length > 1 && r.join("") === a.join("")) r.reverse();
+    return r;
+  }
+  function stats() {
+    return '<div class="stats"><div class="stat"><b>' + S.streak + '</b><span>hari berturut</span></div>' +
+      '<div class="stat"><b>' + S.xp + '</b><span>XP</span></div></div>';
+  }
+
+  function home() {
+    var n = Object.keys(S.done).length;
+    app.innerHTML =
+      '<div class="top"><div class="brand"><small>Belajar bercakap</small>話そう</div>' + stats() + '</div>' +
+      '<p class="lead">Dengar dialog, ulang dengan suara anda, kemudian susun ayat. ' + n + ' daripada ' + LESSONS.length + ' pelajaran selesai.</p>' +
+      '<ul class="lessons">' + LESSONS.map(function (l) {
+        var d = S.done[l.id];
+        return '<li><button class="lesson" data-act="open" data-id="' + l.id + '"><span class="glyph">' + l.glyph + '</span>' +
+          '<span><h3>' + esc(l.title) + '</h3><p>' + esc(l.sub) + ' · ' + l.lines.length + ' ayat</p></span>' +
+          '<span class="badge' + (d ? ' done' : '') + '">' + (d ? 'Selesai' : 'Mula') + '</span></button></li>';
+      }).join("") + '</ul>' +
+      '<p class="note">Bunyi guna suara Jepun dalam peranti anda. Penilaian sebutan perlu pelayar yang menyokong pengecaman suara (Chrome atau Edge) dan kebenaran mikrofon.</p>';
+  }
+
+  function bar(pct) {
+    return '<div class="bar"><button class="back" data-act="home">Kembali</button><div class="progress"><i style="width:' + pct + '%"></i></div></div>';
+  }
+
+  function practice() {
+    var L = V.lesson;
+    app.innerHTML = bar(0) +
+      '<div><h2>' + esc(L.title) + '</h2><p class="sub">Langkah 1 daripada 2: dengar dan ulang setiap ayat.</p></div>' +
+      '<button class="chip toggle" data-act="rom">' + (S.rom ? 'Sembunyi' : 'Tunjuk') + ' romaji</button>' +
+      '<div class="' + (S.rom ? '' : 'hide-rom') + '" style="display:flex;flex-direction:column;gap:18px">' +
+      L.lines.map(function (ln, i) {
+        return '<div class="line ' + (ln.w === "B" ? 'b' : '') + '"><div class="bubble"><span class="who">Penutur ' + ln.w + '</span>' +
+          '<span class="jp">' + esc(ln.jp) + '</span><span class="rom">' + esc(ln.rom) + '</span><span class="ms">' + esc(ln.ms) + '</span></div>' +
+          '<div class="actions"><button class="chip" data-act="play" data-i="' + i + '">' + ICON.play + 'Dengar</button>' +
+          '<button class="chip" data-act="slow" data-i="' + i + '">' + ICON.slow + 'Perlahan</button>' +
+          '<button class="chip voice" data-act="speak" data-i="' + i + '" id="sp' + i + '">' + ICON.mic + 'Sebut</button></div>' +
+          '<div class="result" id="res' + i + '"></div></div>';
+      }).join("") + '</div>' +
+      '<button class="cta" data-act="quiz">Seterusnya: susun ayat</button>';
+  }
+
+  function setResult(i, html) { var el = document.getElementById("res" + i); if (el) el.innerHTML = html; }
+
+  function selfRate(i) {
+    setResult(i, '<span>Tak dapat guna mikrofon. Sebut kuat-kuat, lalu nilai sendiri:</span><div class="actions">' +
+      ['Susah', 'Boleh', 'Lancar'].map(function (t, k) { return '<button class="chip" data-act="rate" data-i="' + i + '" data-k="' + k + '">' + t + '</button>'; }).join("") + '</div>');
+  }
+
+  function speak(i) {
+    var ln = V.lesson.lines[i], btn = document.getElementById("sp" + i);
+    if (!SR) { selfRate(i); return; }
+    var rec = new SR();
+    rec.lang = "ja-JP"; rec.interimResults = false; rec.maxAlternatives = 3;
+    btn.classList.add("live"); setResult(i, '<span class="note">Mendengar... sebut ayat tadi.</span>');
+    var got = false;
+    rec.onresult = function (e) {
+      got = true;
+      var best = 0, heard = "";
+      for (var k = 0; k < e.results[0].length; k++) {
+        var t = e.results[0][k].transcript, sc = similarity(t, ln);
+        if (sc >= best) { best = sc; heard = t; }
+      }
+      var pct = Math.round(best * 100), ok = pct >= 70;
+      setResult(i, '<span class="' + (ok ? 'good' : 'bad') + '"><b>' + pct + '%</b> ' + (ok ? 'Sebutan bagus!' : 'Cuba lagi, dengar dahulu.') + '</span>' +
+        '<div class="meter"><i style="width:' + pct + '%"></i></div><span class="note">Didengar: ' + esc(heard) + '</span>');
+      if (ok) award(2);
+    };
+    rec.onerror = function () { got = true; selfRate(i); };
+    rec.onend = function () { btn.classList.remove("live"); if (!got) setResult(i, '<span class="note">Tiada suara dikesan. Tekan Sebut dan cuba lagi.</span>'); };
+    try { rec.start(); } catch (e) { selfRate(i); }
+  }
+
+  function award(n) { S.xp += n; V.gained += n; save(); }
+
+  function quiz() {
+    var L = V.lesson, ln = L.lines[V.qi];
+    V.pool = shuffle(ln.t); V.placed = []; V.tries = 0; V.locked = false;
+    renderQuiz();
+  }
+  function renderQuiz(msg, cls) {
+    var L = V.lesson, ln = L.lines[V.qi];
+    app.innerHTML = bar(Math.round(V.qi / L.lines.length * 100)) +
+      '<div><h2>' + esc(L.title) + '</h2><p class="sub">Langkah 2 daripada 2: ayat ' + (V.qi + 1) + ' daripada ' + L.lines.length + '.</p></div>' +
+      '<div class="quiz-card"><div class="prompt">' + esc(ln.ms) + '</div>' +
+      '<div class="slot" id="slot">' + V.placed.map(function (t, k) { return '<button class="tile" data-act="unpick" data-k="' + k + '">' + esc(t) + '</button>'; }).join("") + '</div>' +
+      '<div class="pool">' + V.pool.map(function (t, k) { return '<button class="tile" data-act="pick" data-k="' + k + '">' + esc(t) + '</button>'; }).join("") + '</div>' +
+      '<div class="feedback ' + (cls || '') + '">' + (msg || '') + '</div>' +
+      '<button class="chip" data-act="hint">' + ICON.play + 'Dengar jawapan</button></div>';
+  }
+
+  function check() {
+    var ln = V.lesson.lines[V.qi], ok = V.placed.join("") === ln.t.join("");
+    if (ok) {
+      V.locked = true;
+      award(V.tries === 0 ? 10 : 5);
+      say(ln.kana);
+      renderQuiz("Betul! " + ln.jp, "good");
+      var last = V.qi === V.lesson.lines.length - 1;
+      app.insertAdjacentHTML("beforeend", '<button class="cta" data-act="next">' + (last ? 'Selesai' : 'Ayat seterusnya') + '</button>');
+    } else {
+      V.tries++;
+      V.pool = shuffle(ln.t); V.placed = [];
+      renderQuiz("Belum tepat. Cuba susun semula.", "bad");
+      var s = document.getElementById("slot"); if (s) s.classList.add("shake");
+    }
+  }
+
+  function finish() {
+    var L = V.lesson, first = !S.done[L.id];
+    S.done[L.id] = true; bumpStreak(); save();
+    app.innerHTML = bar(100) +
+      '<div class="finish"><div class="big">できた</div><h2>Pelajaran ' + esc(L.title) + ' selesai</h2>' +
+      '<p class="sub">+' + V.gained + ' XP' + (first ? ' dan pelajaran baharu ditandakan selesai' : '') + '. Streak anda ' + S.streak + ' hari.</p>' +
+      '<button class="cta" data-act="home">Kembali ke senarai</button>' +
+      '<button class="chip" data-act="open" data-id="' + L.id + '">Ulang pelajaran ini</button></div>';
+  }
+
+  /* ---------- Acara ---------- */
+  app.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]"); if (!b) return;
+    var act = b.dataset.act, i = +b.dataset.i, k = +b.dataset.k;
+    if (act === "open") {
+      V.lesson = LESSONS.filter(function (l) { return l.id === b.dataset.id; })[0];
+      V.phase = "practice"; V.qi = 0; V.gained = 0; practice(); window.scrollTo(0, 0);
+    } else if (act === "home") { if (window.speechSynthesis) speechSynthesis.cancel(); home(); window.scrollTo(0, 0); }
+    else if (act === "rom") { S.rom = !S.rom; save(); practice(); }
+    else if (act === "play") say(V.lesson.lines[i].kana, false);
+    else if (act === "slow") say(V.lesson.lines[i].kana, true);
+    else if (act === "speak") speak(i);
+    else if (act === "rate") {
+      setResult(i, '<span class="' + (k ? 'good' : 'bad') + '">' + ['Tidak mengapa, dengar lagi dan ulang.', 'Bagus, teruskan.', 'Hebat!'][k] + '</span>');
+      if (k) award(k);
+    }
+    else if (act === "quiz") { V.phase = "quiz"; V.qi = 0; quiz(); window.scrollTo(0, 0); }
+    else if (act === "pick" && !V.locked) { V.placed.push(V.pool.splice(k, 1)[0]); renderQuiz(); if (!V.pool.length) check(); }
+    else if (act === "unpick" && !V.locked) { V.pool.push(V.placed.splice(k, 1)[0]); renderQuiz(); }
+    else if (act === "hint") say(V.lesson.lines[V.qi].kana, false);
+    else if (act === "next") {
+      if (V.qi >= V.lesson.lines.length - 1) finish(); else { V.qi++; quiz(); window.scrollTo(0, 0); }
+    }
+  });
+
+  home();
+})();
+</script>
