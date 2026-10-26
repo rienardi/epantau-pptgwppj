@@ -623,7 +623,7 @@ ruby rt { font-size: .5em; font-weight: 400; color: var(--muted); }
     var nm = Object.keys(S.done).length, md = Object.keys(S.mast).length, next = nextGroup();
     var wr = Object.keys(S.wrote).length, sd = Object.keys(S.sdone).length;
     app.innerHTML =
-      '<div class="top"><div class="brand"><small>HanasuLah! Belajar bahasa Jepun</small>畳 Tatami Tutur</div>' + stats() + '</div>' +
+      '<div class="top"><div class="brand"><small>Belajar bahasa Jepun</small>畳 Tatami Tutur</div>' + stats() + '</div>' +
       '<div class="levelbox"><span class="who">Level kesusahan</span><div class="seg" role="group" aria-label="Level kesusahan">' +
       [1, 2, 3].map(function (n) { return '<button data-act="lvl" data-l="' + n + '" aria-pressed="' + (S.lvl === n) + '" class="' + (S.lvl === n ? 'on' : '') + '">' + LV[n].name + '</button>'; }).join("") +
       '</div><p class="note">' + esc(lv().desc) + '</p></div>' +
