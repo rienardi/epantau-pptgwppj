@@ -1,4 +1,4 @@
-<title>Cakap Nihongo</title>
+<title>Tatami Tutur</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,8 +44,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 button:focus-visible { outline: 3px solid var(--voice); outline-offset: 2px; }
 svg { width: 20px; height: 20px; flex: none; }
 
-.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.brand { font-family: var(--font-jp); font-weight: 800; font-size: 2rem; line-height: 1.1; letter-spacing: .02em; }
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--font-jp); font-weight: 800; font-size: 1.7rem; line-height: 1.1; letter-spacing: .02em; }
 .brand small { display: block; font-family: var(--font-ui); font-weight: 500; font-size: .8rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
 .stats { display: flex; gap: 8px; }
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; text-align: center; min-width: 64px; }
@@ -623,7 +623,7 @@ ruby rt { font-size: .5em; font-weight: 400; color: var(--muted); }
     var nm = Object.keys(S.done).length, md = Object.keys(S.mast).length, next = nextGroup();
     var wr = Object.keys(S.wrote).length, sd = Object.keys(S.sdone).length;
     app.innerHTML =
-      '<div class="top"><div class="brand"><small>Belajar bahasa Jepun</small>日本語</div>' + stats() + '</div>' +
+      '<div class="top"><div class="brand"><small>HanasuLah! Belajar bahasa Jepun</small>畳 Tatami Tutur</div>' + stats() + '</div>' +
       '<div class="levelbox"><span class="who">Level kesusahan</span><div class="seg" role="group" aria-label="Level kesusahan">' +
       [1, 2, 3].map(function (n) { return '<button data-act="lvl" data-l="' + n + '" aria-pressed="' + (S.lvl === n) + '" class="' + (S.lvl === n ? 'on' : '') + '">' + LV[n].name + '</button>'; }).join("") +
       '</div><p class="note">' + esc(lv().desc) + '</p></div>' +
